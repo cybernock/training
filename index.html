@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CyberNock Security | Bug Bounty & Web Pentesting Course</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+      color: #ffffff;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 75, 75, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(75, 255, 255, 0.3) 0%, transparent 50%);
+      z-index: -1;
+      animation: pulse 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* Header Styles */
+    header {
+      position: relative;
+      z-index: 10;
+    }
+
+    .announcement {
+      background: linear-gradient(45deg, #ff4757, #ff3742);
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: slideInDown 0.8s ease-out;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .announcement a {
+      color: white;
+      text-decoration: underline;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .announcement a:hover {
+      color: #ffdd59;
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .logo-section {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .logo-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=2070&auto=format&fit=crop') center/cover;
+      opacity: 0.1;
+      z-index: -1;
+    }
+
+    .logo-section h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      background: linear-gradient(45deg, #00d4ff, #ff4757, #ffdd59);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 30px rgba(0, 212, 255, 0.5); }
+      to { text-shadow: 0 0 50px rgba(255, 71, 87, 0.8); }
+    }
+
+    .logo-section p {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #a0a0a0;
+      letter-spacing: 2px;
+      animation: fadeInUp 1s ease-out 0.5s both;
+      margin-bottom: 30px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 15px 40px;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(255, 71, 87, 0.6);
+      background: linear-gradient(45deg, #ff4757, #00d4ff);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Section Styles */
+    section {
+      padding: 80px 0;
+      position: relative;
+    }
+
+    section:nth-child(even) {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    section h2, section h3 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      margin-bottom: 30px;
+      color: #00d4ff;
+      position: relative;
+      display: inline-block;
+      padding-left: 50px;
+    }
+
+    section h2::before, section h3::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .course-intro h2::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1995/1995537.png');
+    }
+
+    .requirements h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570914.png');
+    }
+
+    .description h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570957.png');
+    }
+
+    .features h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570943.png');
+    }
+
+    .highlights h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570962.png');
+    }
+
+    .curriculum h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570941.png');
+    }
+
+    .faq h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570917.png');
+    }
+
+    .testimonials h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570935.png');
+    }
+
+    .pricing h3::before {
+      background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570918.png');
+    }
+
+    section h2::after, section h3::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50px;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(45deg, #ff4757, #ffdd59);
+      border-radius: 2px;
+    }
+
+    section p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #e0e0e0;
+      line-height: 1.8;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+      border-color: #00d4ff;
+    }
+
+    /* Lists */
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      padding-left: 40px;
+      transition: all 0.3s ease;
+    }
+
+    ul li::before {
+      content: '▶';
+      position: absolute;
+      left: 0;
+      color: #00d4ff;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    ul li:hover {
+      color: #00d4ff;
+      padding-left: 50px;
+    }
+
+    ul li:hover::before {
+      color: #ff4757;
+      transform: scale(1.2);
+    }
+
+    /* Accordion */
+    .accordion {
+      margin-top: 30px;
+    }
+
+    .accordion button {
+      width: 100%;
+      background: linear-gradient(45deg, #2d3748, #4a5568);
+      color: white;
+      border: none;
+      padding: 20px;
+      text-align: left;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .accordion button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      transition: width 0.3s ease;
+      z-index: 0;
+    }
+
+    .accordion button:hover::before {
+      width: 100%;
+    }
+
+    .accordion button:hover {
+      transform: translateX(10px);
+      box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .accordion button span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .accordion-icon {
+      width: 30px;
+      height: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Curriculum Accordion */
+    .curriculum-accordion {
+      margin-top: 30px;
+    }
+
+    .module {
+      margin-bottom: 15px;
+      border-radius: 15px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .module-header {
+      width: 100%;
+      background: linear-gradient(45deg, #2d3748, #4a5568);
+      color: white;
+      border: none;
+      padding: 25px;
+      text-align: left;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .module-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      transition: width 0.3s ease;
+      z-index: 0;
+    }
+
+    .module-header:hover::before {
+      width: 100%;
+    }
+
+    .module-header:hover {
+      transform: translateX(5px);
+      box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .module-header span {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .module-icon {
+      width: 30px;
+      height: 30px;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    .module-header i.fas.fa-chevron-down {
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s ease;
+    }
+
+    .module.active .module-header i.fas.fa-chevron-down {
+      transform: rotate(180deg);
+    }
+
+    .module-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .module.active .module-content {
+      max-height: 1000px;
+    }
+
+    .module-list {
+      padding: 20px 25px;
+      margin: 0;
+    }
+
+    .module-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      padding-left: 30px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      color: #d0d0d0;
+    }
+
+    .module-list li:last-child {
+      border-bottom: none;
+    }
+
+    .module-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #00d4ff;
+      font-size: 1.5rem;
+      line-height: 1;
+      transition: all 0.3s ease;
+    }
+
+    .module-list li:hover {
+      color: #00d4ff;
+      padding-left: 40px;
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .module-list li:hover::before {
+      color: #ff4757;
+      transform: scale(1.2);
+    }
+
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .grid-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .grid-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(255, 71, 87, 0.2);
+    }
+
+    .grid-item i {
+      font-size: 3rem;
+      color: #00d4ff;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    /* Testimonials */
+    .testimonials-container {
+      display: flex;
+      overflow-x: hidden;
+      gap: 30px;
+      padding: 20px 0;
+    }
+
+    .testimonial {
+      min-width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .testimonial::before {
+      content: '"';
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 5rem;
+      color: rgba(0, 212, 255, 0.2);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    .testimonial-content {
+      margin-top: 30px;
+      font-style: italic;
+      color: #d0d0d0;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      gap: 15px;
+    }
+
+    .testimonial-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #4a5568;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #00d4ff;
+    }
+
+    .author-info h4 {
+      color: #00d4ff;
+      margin-bottom: 5px;
+    }
+
+    .author-info p {
+      color: #a0a0a0;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .testimonial-nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .testimonial-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #00d4ff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .testimonial-btn:hover {
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    /* New Pricing Card */
+    .special-offer-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px auto;
+      max-width: 800px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .special-offer-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 71, 87, 0.1));
+      z-index: -1;
+    }
+
+    .offer-header {
+      margin-bottom: 30px;
+    }
+
+    .offer-header h3 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      background: linear-gradient(45deg, #ffdd59, #ff4757);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-tag {
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(45deg, #ffdd59, #ff4757);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 20px 0;
+    }
+
+    .offer-duration {
+      font-size: 1.5rem;
+      color: #ffdd59;
+      margin-bottom: 30px;
+    }
+
+    .offer-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+      text-align: left;
+    }
+
+    .offer-feature {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .offer-feature:hover {
+      background: rgba(0, 212, 255, 0.1);
+      transform: translateY(-5px);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .feature-text h4 {
+      color: #00d4ff;
+      margin-bottom: 5px;
+    }
+
+    .feature-text p {
+      color: #d0d0d0;
+      font-size: 0.95rem;
+    }
+
+    .whatsapp-button {
+      display: inline-block;
+      padding: 16px 50px;
+      background: linear-gradient(45deg, #25D366, #128C7E);
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+      margin-top: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    .whatsapp-button:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.6);
+      background: linear-gradient(45deg, #128C7E, #25D366);
+    }
+	
+	.telegram-button {
+    display: inline-block;
+    padding: 12px 25px;
+    background: linear-gradient(45deg, #0088cc, #34b7f1);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+   }
+
+   .telegram-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0, 136, 204, 0.5);
+    background: linear-gradient(45deg, #34b7f1, #0088cc);
+   }
+
+   .telegram-button i {
+    margin-right: 8px;
+    font-size: 1.2em;
+   }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%);
+      padding: 60px 0 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-logo strong {
+      font-size: 2rem;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00d4ff;
+      font-size: 1.5rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .social-icon:hover {
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      color: white;
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .legal {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #a0a0a0;
+    }
+
+    .legal a {
+      color: #a0a0a0;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .legal a:hover {
+      color: #00d4ff;
+    }
+
+    /* Animations */
+    @keyframes slideInDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 15px;
+      }
+      
+      section {
+        padding: 60px 0;
+      }
+      
+      .card {
+        padding: 30px 20px;
+      }
+      
+      .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .social-links {
+        align-items: center;
+      }
+
+      .social-icons {
+        justify-content: center;
+      }
+
+      section h2, section h3 {
+        padding-left: 40px;
+      }
+
+      section h2::before, section h3::before {
+        width: 30px;
+        height: 30px;
+      }
+
+      section h2::after, section h3::after {
+        left: 40px;
+      }
+      
+      .price-tag {
+        font-size: 2.5rem;
+      }
+      
+      .offer-duration {
+        font-size: 1.2rem;
+      }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1a1a3e;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(45deg, #ff4757, #ffdd59);
+    }
+
+    /* Scroll to top */
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #00d4ff, #ff4757);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      z-index: 100;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-5px) scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="announcement">
+      <i class="fas fa-bullhorn"></i> Looking for team training? <a href="#">Get a demo to see how CyberNock can help build your team.</a>
+    </div>
+    <div class="logo-section">
+      <h1>CYBERNOCK SECURITY</h1>
+      <p>THE LAST LINE OF DEFENSE. AND IT'S PRACTICAL.</p>
+      <a href="#pricing" class="cta-button">Enroll Now <i class="fas fa-arrow-right"></i></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="course-intro">
+      <div class="container">
+        <div class="card">
+          <h2><i class="fas fa-shield-alt"></i> CyberNock – Security Testing Course Overview</h2>
+          <p>Welcome to CyberNock, your gateway to mastering ethical hacking and modern security testing techniques. This course is designed to turn beginners into skilled professionals through hands-on, real-world training.</p>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="#pricing" class="cta-button">See Pricing <i class="fas fa-tag"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="requirements">
+      <div class="container">
+        <h3><i class="fas fa-list-check"></i> Requirements</h3>
+        <div class="card">
+          <ul>
+            <li><i class="fas fa-laptop"></i> Mac / Windows / Linux - all operating systems work with this course!</li>
+            <li><i class="fas fa-cogs"></i> Basic IT Skills</li>
+            <li><i class="fas fa-memory"></i> Computer with a minimum of 8GB RAM & Internet Connection</li>
+            <li><i class="fas fa-globe"></i> Basic understanding of web technology</li>
+            <li><i class="fas fa-tools"></i> Burp Suite Community (Pro optional)</li>
+            <li><i class="fas fa-terminal"></i> Basic Linux Commands, programming or hacking knowledge required</li>
+            <li><i class="fas fa-rocket"></i> Eagerness To Boost Your Career</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="description">
+      <div class="container">
+        <h3><i class="fas fa-file-alt"></i> Description</h3>
+        <div class="card">
+          <p>Welcome to CyberNock's comprehensive course on Bug Bounty Hunting & Web Security Testing. This course assumes no prior knowledge and takes you from the basics to an advanced level. You will learn how to discover, exploit, and report security vulnerabilities found in real-world web applications.</p>
+          <p>We'll cover how websites function, how vulnerabilities occur, and how to safely test them using tools and practical labs. Each module is hands-on and centered around OWASP Top 10 vulnerabilities and real-world hacking techniques. You'll also get tips, cheat sheets, quizzes, and full walkthroughs of popular bug bounty platforms.</p>
+          <p>In the final modules, we combine all that you've learned in live hunting and report-writing sessions—teaching you not just theory, but how to execute a real bug bounty hunt. This course isn't just about hacking. It's about coaching you into becoming a successful bug bounty hunter with a solid, adaptable methodology.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h3><i class="fas fa-star"></i> What You'll Learn</h3>
+        <div class="grid">
+          <div class="grid-item">
+            <i class="fas fa-search"></i>
+            <h4>Information Gathering</h4>
+            <p>Master reconnaissance techniques and learn to gather critical intelligence about your targets.</p>
+          </div>
+          <div class="grid-item">
+            <i class="fas fa-bug"></i>
+            <h4>Vulnerability Discovery</h4>
+            <p>Discover and exploit real-world vulnerabilities using industry-standard tools and techniques.</p>
+          </div>
+          <div class="grid-item">
+            <i class="fas fa-file-contract"></i>
+            <h4>Professional Reporting</h4>
+            <p>Learn to write comprehensive, professional vulnerability reports that get results.</p>
+          </div>
+          <div class="grid-item">
+            <i class="fas fa-trophy"></i>
+            <h4>Bug Bounty Success</h4>
+            <p>Develop proven strategies for success on platforms like HackerOne and Bugcrowd.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="highlights">
+      <div class="container">
+        <h3><i class="fas fa-lightbulb"></i> Course Highlights</h3>
+        <div class="card">
+          <ul>
+            <li><i class="fas fa-play-circle"></i> 100+ pieces of content</li>
+            <li><i class="fas fa-shield-virus"></i> Full OWASP Top 10 coverage</li>
+            <li><i class="fas fa-robot"></i> Use of automation tools</li>
+            <li><i class="fas fa-brain"></i> Methodology building techniques</li>
+            <li><i class="fas fa-flask"></i> Live practice labs</li>
+            <li><i class="fas fa-target"></i> Proven bug bounty strategies</li>
+          </ul>
+          <div style="text-align: center; margin-top: 30px;">
+            <a href="#pricing" class="cta-button">Get Started <i class="fas fa-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="curriculum">
+      <div class="container">
+        <h3><i class="fas fa-graduation-cap"></i> Course Curriculum</h3>
+        <div class="curriculum-accordion">
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570914.png');"></div> Module 01: Information Gathering</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Conduct Search Engine Discovery and Reconnaissance for Information Leakage</li>
+                <li>Fingerprint Web Server</li>
+                <li>Review Webserver Metafiles for Information Leakage</li>
+                <li>Enumerate Applications on Webserver</li>
+                <li>Review Webpage Comments and Metadata for Information Leakage</li>
+                <li>Identify application entry points</li>
+                <li>Map execution paths through application</li>
+                <li>Fingerprint Web Application Framework</li>
+                <li>Fingerprint Web Application</li>
+                <li>Map Network and Application Architecture</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570913.png');"></div> Module 02: Configuration and Deploy Management Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Network/Infrastructure Configuration</li>
+                <li>Application Platform Configuration</li>
+                <li>File Extensions Handling for Sensitive Information</li>
+                <li>Review Old, Backup and Unreferenced Files for Sensitive Information</li>
+                <li>Enumerate Infrastructure and Application Admin Interfaces</li>
+                <li>HTTP Methods</li>
+                <li>HTTP Strict Transport Security</li>
+                <li>RIA cross domain policy</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570932.png');"></div> Module 03: Identity Management Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Role Definitions</li>
+                <li>User Registration Process</li>
+                <li>Account Provisioning Process</li>
+                <li>Account Enumeration and Guessable User Account</li>
+                <li>Weak or unenforced username policy</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570948.png');"></div> Module 04: Authentication Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Credentials Transported over an Encrypted Channel</li>
+                <li>default credentials</li>
+                <li>Weak lock out mechanism</li>
+                <li>bypassing authentication schema</li>
+                <li>remember password functionality</li>
+                <li>Browser cache weakness</li>
+                <li>Weak password policy</li>
+                <li>Weak security question/answer</li>
+                <li>weak password change or reset functionalities</li>
+                <li>Weaker authentication in alternative channel</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570960.png');"></div> Module 05: Authorization Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Testing Directory traversal/file include</li>
+                <li>bypassing authorization schema</li>
+                <li>Privilege Escalation</li>
+                <li>Insecure Direct Object References</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570916.png');"></div> Module 06: Session Management Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Bypassing Session Management Schema</li>
+                <li>Cookies attributes</li>
+                <li>Session Fixation</li>
+                <li>Exposed Session Variables</li>
+                <li>Cross Site Request Forgery (CSRF)</li>
+                <li>logout functionality</li>
+                <li>Session Timeout</li>
+                <li>Session puzzling</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570927.png');"></div> Module 07: Data Validation Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Reflected Cross Site Scripting</li>
+                <li>Stored Cross Site Scripting</li>
+                <li>HTTP Verb Tampering</li>
+                <li>HTTP Parameter pollution</li>
+                <li>SQL Injection</li>
+                <li>LDAP Injection</li>
+                <li>ORM Injection</li>
+                <li>XML Injection</li>
+                <li>SSI Injection</li>
+                <li>XPath Injection</li>
+                <li>IMAP/SMTP Injection</li>
+                <li>Code Injection</li>
+                <li>Local File Inclusion</li>
+                <li>Remote File Inclusion</li>
+                <li>Command Injection</li>
+                <li>Buffer overflow</li>
+                <li>incubated vulnerabilities</li>
+                <li>HTTP Splitting/Smuggling</li>
+                <li>Unvalidated Redirects and Forwards</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570931.png');"></div> Module 08: Error Handling</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Weak SSL/TSL Ciphers, Insufficient Transport Layer Protection</li>
+                <li>Padding Oracle</li>
+                <li>Sensitive information sent via unencrypted channels</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570919.png');"></div> Module 09: Business Logic Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Business Logic Data Validation</li>
+                <li>Ability to Forge Requests</li>
+                <li>Integrity Checks</li>
+                <li>for Process Timing</li>
+                <li>Number of Times a Function Can be Used Limits</li>
+                <li>the Circumvention of Work Flows</li>
+                <li>Defenses Against Application Mis-use</li>
+                <li>Upload of Unexpected File Types</li>
+                <li>Upload of Malicious Files</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570956.png');"></div> Module 10: Client Side Testing</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>DOM based Cross Site Scripting</li>
+                <li>JavaScript Execution</li>
+                <li>HTML Injection</li>
+                <li>Client Side URL Redirect</li>
+                <li>CSS Injection</li>
+                <li>Client Side Resource Manipulation</li>
+                <li>Cross Origin Resource Sharing</li>
+                <li>Cross Site Flashing</li>
+                <li>Clickjacking</li>
+                <li>Testing WebSockets</li>
+                <li>Web Messaging</li>
+                <li>Local Storage</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="module">
+            <button class="module-header"><span><div class="module-icon" style="background-image: url('https://cdn-icons-png.flaticon.com/512/1570/1570952.png');"></div> Module 11: Bug Bounty</span><i class="fas fa-chevron-down"></i></button>
+            <div class="module-content">
+              <ul class="module-list">
+                <li>Subdomain Enumeration</li>
+                <li>Sensitive Files & Backup Discovery</li>
+                <li>Hidden Endpoint/Path Discovery</li>
+                <li>Sensitive Information via Metadata</li>
+                <li>Sensitive Information in JS</li>
+                <li>3rd Party Service Enumeration</li>
+                <li>Github/Source Code Leak Enumeration</li>
+                <li>Crawling and Indexing</li>
+                <li>Essential Topics to Bounty Hunting</li>
+                <li>HTTP Methods & Status Codes</li>
+                <li>JavaScript Basics for Bug Hunting</li>
+                <li>Bug Hunting and Research</li>
+                <li>Open-Source Tools</li>
+                <li>Live Bug Hunt</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials">
+      <div class="container">
+        <h3><i class="fas fa-comments"></i> Student Testimonials</h3>
+        <div class="testimonials-container" id="testimonials-slider">
+          <div class="testimonial">
+            <div class="testimonial-content">
+              "CyberNock completely transformed my career. After just 3 months, I landed my first bug bounty payout of $5,000! The hands-on labs and real-world examples are unmatched."
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <i class="fas fa-user-secret"></i>
+              </div>
+              <div class="author-info">
+                <h4>Alex Johnson</h4>
+                <p>Security Analyst @ TechSecure</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial">
+            <div class="testimonial-content">
+              "As a complete beginner, I was intimidated by cybersecurity. This course breaks everything down in a way that's easy to understand. The community support is fantastic too!"
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+              <div class="author-info">
+                <h4>Sarah Williams</h4>
+                <p>Former Developer, Now Pentester</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="testimonial">
+            <div class="testimonial-content">
+              "The curriculum covers everything you need to start hunting bugs professionally. I've made over $20k in bug bounties since completing this course. Best investment in my career ever."
+            </div>
+            <div class="testimonial-author">
+              <div class="testimonial-avatar">
+                <i class="fas fa-user-ninja"></i>
+              </div>
+              <div class="author-info">
+                <h4>Michael Rodriguez</h4>
+                <p>Top 1% on HackerOne</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-nav">
+          <button class="testimonial-btn" id="prev-testimonial"><i class="fas fa-chevron-left"></i></button>
+          <button class="testimonial-btn" id="next-testimonial"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+      <div class="container">
+        <h3><i class="fas fa-tags"></i> Special Offer</h3>
+        
+        <div class="special-offer-card">
+          <div class="offer-header">
+            <h3>CyberNock Security Pro</h3>
+            <p>Comprehensive Bug Bounty & Web Pentesting Course</p>
+          </div>
+          
+          <div class="price-tag">₹19,999/-</div>
+          <div class="offer-duration">Only for 45 days!</div>
+          
+          <div class="offer-features">
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-file-pdf"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Course Related PDF Access</h4>
+                <p>Complete set of learning materials and cheat sheets</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-headset"></i>
+              </div>
+              <div class="feature-text">
+                <h4>1 Month Job Support</h4>
+                <p>Direct assistance with job placements</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <div class="feature-text">
+                <h4>3 Months Doubt-Clearing Support</h4>
+                <p>Get your questions answered by experts</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-comments"></i>
+              </div>
+              <div class="feature-text">
+                <h4>6 Months Interview Support</h4>
+                <p>Prepare for technical interviews with mock sessions</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Resume & LinkedIn Profile Review</h4>
+                <p>Optimize your professional presence</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Private CyberNock Community Access</h4>
+                <p>Network with fellow security enthusiasts</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-bug"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Live Bug Bounty Mentorship Sessions</h4>
+                <p>Hands-on guidance from experienced hunters</p>
+              </div>
+            </div>
+            
+            <div class="offer-feature">
+              <div class="feature-icon">
+                <i class="fas fa-bell"></i>
+              </div>
+              <div class="feature-text">
+                <h4>Job and Internship Alerts</h4>
+                <p>Get notified about opportunities in cybersecurity</p>
+              </div>
+            </div>
+          </div>
+          
+          <a href="https://wa.me/919989931285" class="whatsapp-button" target="_blank">
+            <i class="fab fa-whatsapp"></i> Register Now on WhatsApp
+          </a>
+		  <a href="https://t.me/cybernock" class="telegram-button" target="_blank">
+           <i class="fab fa-telegram"></i> Join Telegram Channel for Latest Updates
+          </a>
+
+          
+          <p style="margin-top: 20px; color: #d0d0d0; font-size: 0.9rem;">
+            <i class="fas fa-lock"></i> Secure enrollment process. Limited seats available!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq">
+      <div class="container">
+        <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+        <div class="accordion">
+          <button><span><i class="fas fa-info-circle"></i> What is CyberNock?</span><br><span>CyberNock is a cybersecurity education platform and YouTube channel that offers high-quality tutorials on ethical hacking, security testing, and vulnerability assessment. It focuses on practical, real-world training.</span></button>
+          <button><span><i class="fas fa-gift"></i> What Will You Get from This Course?</span><br><span>A rock-solid methodology to find bugs, improve reporting, and personalize your bug hunting strategy. No false promises—just real skills and coaching to succeed.</span></button>
+          <button><span><i class="fas fa-book"></i> What Will Each Chapter Include?</span><br><span>Chapters come with detailed lessons, PDFs, cheat sheets, diagrams, quizzes, and exploit-ready labs. Additional free videos and tips are also available on YouTube.</span></button>
+          <button><span><i class="fas fa-users"></i> Who is this course for?</span><br><span>Almost everyone! Beginners, students, developers, and IT professionals looking to get started or level up in cybersecurity and bug bounty hunting.</span></button>
+          <button><span><i class="fas fa-certificate"></i> Will I receive a certificate?</span><br><span>Yes! Upon successful completion of the course and passing the final exam, you'll receive a professional certificate that you can add to your LinkedIn profile and resume.</span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <strong>CYBERNOCK SECURITY</strong>
+          <p style="margin-top: 10px; color: #a0a0a0;">The Last Line of Defense</p>
+          <p style="margin-top: 20px; color: #d0d0d0;">
+            <i class="fas fa-envelope"></i> cybernock9@gmail.com<br>
+            <i class="fas fa-phone"></i> +91 99899 31285
+          </p>
+        </div>
+        <div class="social-links">
+          <h4>Connect With Us</h4>
+          <div class="social-icons">
+            <a href="https://github.com/vijay922" class="social-icon" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://x.com/cybernock9" class="social-icon" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.linkedin.com/in/cyber-nock-3aaa24374/" class="social-icon" target="_blank"><i class="fab fa-linkedin"></i></a>
+            <a href="https://t.me/cybernock" class="social-icon" target="_blank"><i class="fab fa-telegram"></i></a>
+            <a href="https://wa.me/919989931285" class="social-icon" target="_blank"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="legal">
+        <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a> | <a href="#">Refund Policy</a><br>
+        © 2025 CyberNock™. All Rights Reserved. Made with ❤️ by AI.
+      </div>
+    </div>
+  </footer>
+
+  <div class="scroll-top" id="scrollTop">
+    <i class="fas fa-arrow-up"></i>
+  </div>
+
+  <script>
+    // Accordion functionality
+    document.querySelectorAll('.module-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const module = header.parentElement;
+        const isActive = module.classList.contains('active');
+        
+        // Close all modules
+        document.querySelectorAll('.module').forEach(m => {
+          m.classList.remove('active');
+        });
+        
+        // Open clicked module if it wasn't active
+        if (!isActive) {
+          module.classList.add('active');
+        }
+      });
+    });
+
+    // Testimonials slider
+    const testimonials = document.querySelectorAll('.testimonial');
+    const prevBtn = document.getElementById('prev-testimonial');
+    const nextBtn = document.getElementById('next-testimonial');
+    let currentIndex = 0;
+    
+    function showTestimonial(index) {
+      testimonials.forEach((testimonial, i) => {
+        testimonial.style.transform = `translateX(${100 * (i - index)}%)`;
+      });
+    }
+    
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + testimonials.length) % testimonials.length;
+      showTestimonial(currentIndex);
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % testimonials.length;
+      showTestimonial(currentIndex);
+    });
+    
+    // Initialize
+    showTestimonial(currentIndex);
+    
+    // Scroll to top
+    const scrollTopBtn = document.getElementById('scrollTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    });
+    
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // FAQ accordion
+    document.querySelectorAll('.accordion button').forEach(button => {
+      button.addEventListener('click', () => {
+        const isActive = button.classList.contains('active');
+        
+        // Close all
+        document.querySelectorAll('.accordion button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Open clicked if wasn't active
+        if (!isActive) {
+          button.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
